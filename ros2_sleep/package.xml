@@ -3,7 +3,7 @@
 <package format="3">
   <name>ros2_sleep</name>
   <version>0.0.0</version>
-  <description></description>
+  <description>A simple sleep command for your shell scripts that obeys sim time  </description>
   <maintainer email="arjo@openrobotics.org">Arjo Chakravarty</maintainer>
   <license>Apache License 2.0</license>
 

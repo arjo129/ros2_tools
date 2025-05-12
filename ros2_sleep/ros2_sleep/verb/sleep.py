@@ -17,12 +17,25 @@ class SleepTimer(Node):
 
 class SleepCommand(VerbExtension):
     def add_arguments(self, parser, cli_name):
+        parser.description = (
+            'Sleep for a given number of seconds using simulation time if available '
+            '(falls back to wall time if /clock is not published).'
+        )
         parser.add_argument('seconds', type=float, help='Number of seconds to sleep')
+        parser.add_argument(
+            '--use-sim-time',
+            action='store_true',
+            help='Enable simulation time (/clock). Falls back to wall time if not set.'
+        )
         return parser
 
     def main(self, *, parser, args):
         rclpy.init()
+        
         node = SleepTimer(args.seconds)
+        if args.use_sim_time:
+            node.get_logger().info('Setting use_sim_time = true')
+            node.set_parameters([rclpy.parameter.Parameter('use_sim_time', rclpy.Parameter.Type.BOOL, True)])
         try:
             while rclpy.ok() and not node.done:
                 rclpy.spin_once(node, timeout_sec=0.1)
