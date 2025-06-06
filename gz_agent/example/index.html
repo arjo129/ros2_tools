@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROS-Gazebo Bridge Generator</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            box-sizing: border-box; /* Include padding in element's total width and height */
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #e9ecef;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+        }
+        li code {
+            flex-grow: 1; /* Allows the code to take up available space */
+            margin-right: 10px;
+            word-break: break-all; /* Break long lines of code */
+        }
+        .message {
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+        .message.loading {
+            background-color: #e0f7fa;
+            color: #00796b;
+        }
+        .message.error {
+            background-color: #ffe0b2;
+            color: #e65100;
+        }
+        .message.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ROS-Gazebo Bridge Generator</h1>
+
+        <p>Click the button below to fetch Gazebo topics and generate `ros_gz` bridge commands.</p>
+        <button id="generateBridgesButton">Generate Bridge Commands</button>
+
+        <div id="statusMessage" class="message info" style="display: none;"></div>
+
+        <div id="commandsOutput" style="display: none;">
+            <h2>Generated Bridge Commands:</h2>
+            <p>Copy and paste these commands into your terminal to start the bridges:</p>
+            <textarea id="allCommandsTextarea" rows="15" readonly></textarea>
+            <button id="copyAllCommandsButton">Copy All Commands</button>
+
+            <h3>Individual Commands:</h3>
+            <ul id="individualCommandsList">
+                </ul>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
