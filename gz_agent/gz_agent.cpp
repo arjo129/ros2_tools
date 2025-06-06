@@ -27,7 +27,7 @@ int main(int argc, const char** argv) {
         res.set_content(j.dump(), "application/json");
     });
 
-    svr.listen("0.0.0.0", 1234);
+    svr.listen("127.0.0.1", 1234);
 
     return 0;
 }

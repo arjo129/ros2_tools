@@ -23,3 +23,9 @@ ros2 run dotstream_viz dotstream_node
 The node subscribes to:
 - `network` (`std.msgs.String`): A string representing the graphviz graph you want to visuallize.
 - `graph_image` (`sensor_msgs.msgs.Image`): Output Image containing the graph
+
+## `gz_introspection_agent`
+
+This essentially provides a list of published topics and types from the gazebo simulator over a rest API.
+The rest API can be used by tools to help develop web frontends. An example usecase is for instanc ein a vscode extension.
+Note that currently this node is extremely inflexible as it listens on `127.0.0.1:1234` without any warning.
