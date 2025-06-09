@@ -81,7 +81,7 @@ function generatePythonBridgeCommand(topic, gzType, ros2Type, direction) {
     }
 
     // Construct the command
-    return `Node(package='ros_gz_bridge', executable='parameter_bridge', arguments='${topic}@${ros2Type}${bridge_direction}${gzType}')`;
+    return `Node(package='ros_gz_bridge', executable='parameter_bridge', arguments=['${topic}@${ros2Type}${bridge_direction}${gzType}'])`;
 }
 
 // --- DOM Manipulation Functions ---
