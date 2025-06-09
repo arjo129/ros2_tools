@@ -59,7 +59,7 @@ function generateBridgeCommand(topic, gzType, ros2Type, direction) {
     }
 
     // Construct the command
-    return `ros_gz_bridge parameter_bridge ${topic}@${ros2Type}${bridge_direction}${gzType}`;
+    return `ros2 run ros_gz_bridge parameter_bridge ${topic}@${ros2Type}${bridge_direction}${gzType}`;
 }
 
 // Function to generate a single ros_gz bridge command
