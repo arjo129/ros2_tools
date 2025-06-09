@@ -41,7 +41,8 @@ int main(int argc, const char** argv) {
         for (const auto &topic: topics) {
             json topicInfo;
             std::vector<gz::transport::MessagePublisher> publishers;
-            node.TopicInfo(topic, publishers);
+            std::vector<gz::transport::MessagePublisher> subscribers;
+            node.TopicInfo(topic, publishers, subscribers);
             topicInfo["topic"] = topic;
             if (publishers.size() > 0)
                 topicInfo["type"] = publishers[0].MsgTypeName();
