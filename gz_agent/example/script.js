@@ -19,23 +19,25 @@ async function getGazeboTopics() {
 
 // Function to map Gazebo types to ROS 2 types
 function getRos2Type(gzType) {
-    // This is a simplified mapping. ros_gz handles many common types directly.
-    // For less common types, you might need to find the exact ROS 2 equivalent
-    // or specify a custom bridge.
-    // Refer to ros_gz documentation for a comprehensive list.
-    const typeMap = {
-        "gz.msgs.Clock": "rosgraph_msgs/msg/Clock",
-        "gz.msgs.StringMsg_V": "std_msgs/msg/String", // Common for a vector of strings
-        "gz.msgs.Pose": "geometry_msgs/msg/Pose",
-        "gz.msgs.CameraTrack": "gazebo_msgs/msg/CameraTrack", // Placeholder, might need custom message
-        "gz.msgs.WorldStatistics": "gazebo_msgs/msg/WorldStatistics",
-        "gz.msgs.Pose_V": "geometry_msgs/msg/PoseArray", // Common mapping for vector of poses
-        "gz.msgs.UInt32_V": "std_msgs/msg/UInt32MultiArray", // Or similar, depending on exact use case
-        "gz.msgs.Scene": "gazebo_msgs/msg/Scene", // Placeholder, might need custom message
-        "gz.msgs.SerializedStepMap": "gazebo_msgs/msg/SerializedStepMap" // Placeholder, might need custom message
-        // Add more mappings here based on ros_gz capabilities
-    };
-    return typeMap[gzType] || null; // Return null if no direct mapping found
+    let mapping = {
+		"gz.msgs.LaserScan": "sensor_msgs/msg/LaserScan",
+		"gz.msgs.Twist": "geometry_msgs/msg/Twist",
+		"gz.msgs.Odometry": "geometry_msgs/msg/Odometry",
+		"gz.msgs.FluidPressure": "sensor_msgs/msg/FluidPressure",
+		"gz.msgs.BatteryState": "sensor_msgs/msg/BatteryState",
+		"gz.msgs.Image": "sensor_msgs/msg/Image",
+		"gz.msgs.CameraInfo": "sensor_msgs/msg/CameraInfo",
+		"gz.msgs.PointCloudPacked": "sensor_msgs/msg/PointCloud2",
+		"gz.msgs.Boolean": "std_msgs/msg/Bool",
+		"gz.msgs.IMU": "sensor_msgs/msg/Imu",
+		"gz.msgs.Model": "sensor_msgs/msg/JointState",
+		"gz.msgs.Magnetometer": "sensor_msgs/msg/MagneticField",
+		"gz.msgs.NavSat" : "sensor_msgs/msg/NavSatFix",
+		"gz.msgs.Clock" : "rosgraph_msgs/msg/Clock",
+		"gz.msgs.Pose_V" : "tf2_msgs/msg/TFMessage"
+	};
+
+	return mapping[gzType] || null; // Return null if no direct mapping found
 }
 
 // Function to generate a single ros_gz bridge command
@@ -73,6 +75,8 @@ function showCommandsOutput() {
     document.getElementById('commandsOutput').style.display = 'block';
 }
 
+
+let isPythonSyntax = false;
 function updateCommandsDisplay(commands) {
     const allCommandsTextarea = document.getElementById('allCommandsTextarea');
     const individualCommandsList = document.getElementById('individualCommandsList');
@@ -113,9 +117,41 @@ function updateCommandsDisplay(commands) {
         listItem.appendChild(copyButton);
         individualCommandsList.appendChild(listItem);
     });
+    // Call the function to add the syntax toggle button
 
     showCommandsOutput();
 }
+function addSyntaxToggleButton() {
+    const individualCommandsList = document.getElementById('individualCommandsList');
+
+    // Add a toggle button for syntax switching
+    const syntaxToggleButton = document.createElement('button');
+    syntaxToggleButton.textContent = 'Switch to Python Launch Syntax';
+    syntaxToggleButton.style.marginBottom = '10px';
+
+    
+
+    syntaxToggleButton.onclick = () => {
+        isPythonSyntax = !isPythonSyntax;
+        syntaxToggleButton.textContent = isPythonSyntax ? 'Switch to Bash Syntax' : 'Switch to Python Launch Syntax';
+
+        // Update the commands in the list based on the selected syntax
+        const listItems = individualCommandsList.querySelectorAll('li');
+        listItems.forEach((listItem, index) => {
+            const codeElement = listItem.querySelector('code');
+            if (isPythonSyntax) {
+                codeElement.textContent = `python_launch_command_${index + 1}`; // Placeholder for Python syntax
+            } else {
+                codeElement.textContent = `bash_command_${index + 1}`; // Placeholder for Bash syntax
+            }
+        });
+    };
+
+    // Insert the toggle button above the individual commands list
+    individualCommandsList.parentElement.insertBefore(syntaxToggleButton, individualCommandsList);
+}
+
+addSyntaxToggleButton();
 
 // --- Main Logic ---
 
