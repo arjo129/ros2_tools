@@ -50,16 +50,15 @@
             padding: 0;
         }
         li {
-            background-color: #e9ecef;
             padding: 10px;
             margin-bottom: 8px;
             border-radius: 4px;
-            display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap; /* Allow items to wrap on smaller screens */
         }
         li code {
+            background-color: #e9ecef;
             flex-grow: 1; /* Allows the code to take up available space */
             margin-right: 10px;
             word-break: break-all; /* Break long lines of code */
@@ -94,9 +93,6 @@
 
         <div id="commandsOutput" style="display: none;">
             <h2>Generated Bridge Commands:</h2>
-            <p>Copy and paste these commands into your terminal to start the bridges:</p>
-            <textarea id="allCommandsTextarea" rows="15" readonly></textarea>
-            <button id="copyAllCommandsButton">Copy All Commands</button>
 
             <h3>Individual Commands:</h3>
             <ul id="individualCommandsList">

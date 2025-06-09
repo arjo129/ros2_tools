@@ -41,17 +41,47 @@ function getRos2Type(gzType) {
 }
 
 // Function to generate a single ros_gz bridge command
-function generateBridgeCommand(topic, gzType, ros2Type) {
+function generateBridgeCommand(topic, gzType, ros2Type, direction) {
     if (!ros2Type) {
         // console.warn(`No direct ROS 2 type mapping found for Gazebo type: ${gzType}. Skipping bridge for topic: ${topic}`);
         return null;
     }
 
-    // Determine ROS 2 topic name (often the same as Gazebo topic, but can be customized)
-    const ros2Topic = topic;
+    // Determine the bridge direction
+    if (direction === 'GZ=>ROS') {
+        var bridge_direction = '[';
+    }
+    else if (direction === 'ROS=>GZ') {
+        var bridge_direction = ']';
+    }
+    else {
+        var bridge_direction = '@';
+    }
 
     // Construct the command
-    return `ros_gz bridge --ros-args -r ${ros2Topic}:${topic} -t ${ros2Type}@${gzType}`;
+    return `ros_gz_bridge parameter_bridge ${topic}@${ros2Type}${bridge_direction}${gzType}`;
+}
+
+// Function to generate a single ros_gz bridge command
+function generatePythonBridgeCommand(topic, gzType, ros2Type, direction) {
+    if (!ros2Type) {
+        // console.warn(`No direct ROS 2 type mapping found for Gazebo type: ${gzType}. Skipping bridge for topic: ${topic}`);
+        return null;
+    }
+
+    // Determine the bridge direction
+    if (direction === 'GZ=>ROS') {
+        var bridge_direction = '[';
+    }
+    else if (direction === 'ROS=>GZ') {
+        var bridge_direction = ']';
+    }
+    else {
+        var bridge_direction = '@';
+    }
+
+    // Construct the command
+    return `Node(package='ros_gz_bridge', executable='parameter_bridge', arguments='${topic}@${ros2Type}${bridge_direction}${gzType}')`;
 }
 
 // --- DOM Manipulation Functions ---
@@ -76,35 +106,51 @@ function showCommandsOutput() {
 }
 
 
-let isPythonSyntax = false;
 function updateCommandsDisplay(commands) {
-    const allCommandsTextarea = document.getElementById('allCommandsTextarea');
     const individualCommandsList = document.getElementById('individualCommandsList');
 
     // Clear previous commands
-    allCommandsTextarea.value = '';
     individualCommandsList.innerHTML = '';
 
     if (commands.length === 0) {
-        allCommandsTextarea.value = "No bridge commands could be generated or no topics found.";
         showMessage('info', 'No bridge commands could be generated or no topics found.');
         return;
     }
 
-    // Populate the textarea with all commands
-    allCommandsTextarea.value = commands.join('\n');
-
     // Populate the individual list
     commands.forEach((cmd, index) => {
         const listItem = document.createElement('li');
-        const codeElement = document.createElement('code');
-        codeElement.textContent = cmd;
-        listItem.appendChild(codeElement);
+        listItem.textContent = cmd.topic;
+        //const codeElement = document.createElement('code');
+        listItem.appendChild(document.createElement('br'));
+        const directionSpan = document.createElement('span');
+        directionSpan.style.marginRight = '10px';
 
-        const copyButton = document.createElement('button');
-        copyButton.textContent = 'Copy';
-        copyButton.onclick = () => {
-            navigator.clipboard.writeText(cmd)
+        const directions = ['GZ=>ROS', 'ROS=>GZ', 'Bidirectional'];
+        directions.forEach(direction => {
+            const radioButton = document.createElement('input');
+            radioButton.type = 'radio';
+            radioButton.name = `direction_${index}`;
+            radioButton.value = direction;
+            radioButton.style.marginRight = '5px';
+
+            const label = document.createElement('label');
+            label.textContent = direction;
+            label.style.marginRight = '10px';
+
+            directionSpan.appendChild(radioButton);
+            directionSpan.appendChild(label);
+        });
+
+        listItem.appendChild(directionSpan);
+        //codeElement.textContent = cmd;
+        //listItem.appendChild(codeElement);
+
+        const copyBashButton = document.createElement('button');
+        copyBashButton.textContent = 'Copy Bash Command';
+        copyBashButton.onclick = () => {
+            const direction = document.querySelector(`input[name="direction_${index}"]:checked`)?.value || 'Bidirectional';
+            navigator.clipboard.writeText(generateBridgeCommand(cmd.topic, cmd.type, getRos2Type(cmd.type), direction))
                 .then(() => {
                     showMessage('info', `Copied command ${index + 1} to clipboard!`);
                     setTimeout(hideMessage, 2000); // Hide message after 2 seconds
@@ -114,44 +160,30 @@ function updateCommandsDisplay(commands) {
                     console.error('Failed to copy text: ', err);
                 });
         };
-        listItem.appendChild(copyButton);
+        listItem.appendChild(copyBashButton);
+
+        const copyPythonLaunchButton = document.createElement('button');
+        copyPythonLaunchButton.textContent = 'Copy Python Launch';
+        copyPythonLaunchButton.onclick = () => {
+            const direction = document.querySelector(`input[name="direction_${index}"]:checked`)?.value || 'Bidirectional';
+            navigator.clipboard.writeText(generatePythonBridgeCommand(cmd.topic, cmd.type, getRos2Type(cmd.type), direction))
+                .then(() => {
+                    showMessage('info', `Copied command ${index + 1} to clipboard!`);
+                    setTimeout(hideMessage, 2000); // Hide message after 2 seconds
+                })
+                .catch(err => {
+                    showMessage('error', 'Failed to copy command!');
+                    console.error('Failed to copy text: ', err);
+                });
+        };
+        listItem.appendChild(copyPythonLaunchButton);
         individualCommandsList.appendChild(listItem);
     });
     // Call the function to add the syntax toggle button
 
     showCommandsOutput();
 }
-function addSyntaxToggleButton() {
-    const individualCommandsList = document.getElementById('individualCommandsList');
 
-    // Add a toggle button for syntax switching
-    const syntaxToggleButton = document.createElement('button');
-    syntaxToggleButton.textContent = 'Switch to Python Launch Syntax';
-    syntaxToggleButton.style.marginBottom = '10px';
-
-    
-
-    syntaxToggleButton.onclick = () => {
-        isPythonSyntax = !isPythonSyntax;
-        syntaxToggleButton.textContent = isPythonSyntax ? 'Switch to Bash Syntax' : 'Switch to Python Launch Syntax';
-
-        // Update the commands in the list based on the selected syntax
-        const listItems = individualCommandsList.querySelectorAll('li');
-        listItems.forEach((listItem, index) => {
-            const codeElement = listItem.querySelector('code');
-            if (isPythonSyntax) {
-                codeElement.textContent = `python_launch_command_${index + 1}`; // Placeholder for Python syntax
-            } else {
-                codeElement.textContent = `bash_command_${index + 1}`; // Placeholder for Bash syntax
-            }
-        });
-    };
-
-    // Insert the toggle button above the individual commands list
-    individualCommandsList.parentElement.insertBefore(syntaxToggleButton, individualCommandsList);
-}
-
-addSyntaxToggleButton();
 
 // --- Main Logic ---
 
@@ -161,20 +193,13 @@ async function generateBridges() {
 
     try {
         const gazeboTopics = await getGazeboTopics();
-        const bridgeCommands = [];
         const skippedTopics = [];
 
         gazeboTopics.forEach(item => {
             const ros2Type = getRos2Type(item.type);
-            const command = generateBridgeCommand(item.topic, item.type, ros2Type);
-            if (command) {
-                bridgeCommands.push(command);
-            } else {
-                skippedTopics.push(item.topic);
-            }
         });
 
-        updateCommandsDisplay(bridgeCommands);
+        updateCommandsDisplay(gazeboTopics);
 
         if (skippedTopics.length > 0) {
             showMessage('info', `Successfully generated commands. ${skippedTopics.length} topics were skipped due to unmapped Gazebo types.`);
@@ -186,6 +211,7 @@ async function generateBridges() {
     } catch (error) {
         showMessage('error', `Failed to generate commands: ${error.message}. Please check the console for details and ensure the endpoint is running.`);
         hideCommandsOutput(); // Hide output on error
+        console.error(error);
     }
 }
 
@@ -193,22 +219,8 @@ async function generateBridges() {
 
 document.addEventListener('DOMContentLoaded', () => {
     const generateButton = document.getElementById('generateBridgesButton');
-    const copyAllButton = document.getElementById('copyAllCommandsButton');
 
     generateButton.addEventListener('click', generateBridges);
-
-    copyAllButton.addEventListener('click', () => {
-        const allCommandsTextarea = document.getElementById('allCommandsTextarea');
-        navigator.clipboard.writeText(allCommandsTextarea.value)
-            .then(() => {
-                showMessage('info', 'All commands copied to clipboard!');
-                setTimeout(hideMessage, 2000); // Hide message after 2 seconds
-            })
-            .catch(err => {
-                showMessage('error', 'Failed to copy all commands!');
-                console.error('Failed to copy text: ', err);
-            });
-    });
 
     // Initial state: hide output and show an introductory message
     hideCommandsOutput();
