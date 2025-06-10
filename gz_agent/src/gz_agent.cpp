@@ -46,7 +46,9 @@ int main(int argc, const char** argv) {
             topicInfo["topic"] = topic;
             if (publishers.size() > 0)
                 topicInfo["type"] = publishers[0].MsgTypeName();
-            else 
+            else if (subscribers.size() > 0) 
+                topicInfo["type"] = subscribers[0].MsgTypeName();
+            else
                 topicInfo["type"] = "";
             j["topics"].push_back(topicInfo);
         }
