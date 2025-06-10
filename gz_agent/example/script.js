@@ -22,7 +22,7 @@ function getRos2Type(gzType) {
     let mapping = {
 		"gz.msgs.LaserScan": "sensor_msgs/msg/LaserScan",
 		"gz.msgs.Twist": "geometry_msgs/msg/Twist",
-		"gz.msgs.Odometry": "geometry_msgs/msg/Odometry",
+		"gz.msgs.Odometry": "nav_msgs/msg/Odometry",
 		"gz.msgs.FluidPressure": "sensor_msgs/msg/FluidPressure",
 		"gz.msgs.BatteryState": "sensor_msgs/msg/BatteryState",
 		"gz.msgs.Image": "sensor_msgs/msg/Image",
