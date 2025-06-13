@@ -22,7 +22,6 @@ class DotstreamNode(Node):
         self.bridge = CvBridge()
 
     def listener_callback(self, msg):
-        self.get_logger().info(f'Received message: "{msg.data}"')
 
         # Parse DOT data using pydot
         try:
@@ -39,7 +38,7 @@ class DotstreamNode(Node):
                     # Convert the OpenCV image to a ROS2 Image message
                     image_msg = self.bridge.cv2_to_imgmsg(image, encoding="bgr8")
                     self.image_publisher.publish(image_msg)
-                    self.get_logger().info("Published graph image as sensor_msgs/Image")
+                    self.get_logger().debug("Published graph image as sensor_msgs/Image")
                 else:
                     self.get_logger().error("Failed to decode PNG data into an image")
         except Exception as e:
